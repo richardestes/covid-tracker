@@ -104,7 +104,7 @@ function App() {
             isBlue
             active={casesType==='cases'}
             onClick={e=>setCasesType('cases')}
-            title="Coronavirus Cases"
+            title="Cases Reported Today"
             cases={prettyPrintStat(countryInfo.todayCases)}
             total={prettyPrintStat(countryInfo.cases)} 
           />
@@ -113,7 +113,7 @@ function App() {
             className="infoBox_recovered"
             active={casesType==='recovered'}
             onClick={e=>setCasesType('recovered')}
-            title="Recovered"
+            title="Recovered Today"
             cases={prettyPrintStat(countryInfo.todayRecovered)}
             total={prettyPrintStat(countryInfo.recovered)} 
           />
@@ -122,7 +122,7 @@ function App() {
             isRed
             active={casesType==='deaths'}
             onClick={e=>setCasesType('deaths')}
-            title="Deaths"
+            title="Deaths Today"
             cases={prettyPrintStat(countryInfo.todayDeaths)}
             total ={prettyPrintStat(countryInfo.deaths)}
           />
