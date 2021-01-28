@@ -19,4 +19,4 @@ jobs:
           channelId: live
           projectId: covid-tracker-6cdd6
         env:
-          FIREBASE_CLI_PREVIEWS: hostingchannels
+          CI: false
