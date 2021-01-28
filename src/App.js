@@ -25,6 +25,9 @@ function App() {
   const [mapZoom,setMapZoom] = useState(3);
   const [mapCountries,setMapCountries] = useState([]);
   const [casesType,setCasesType] = useState("cases");
+  const [countryVaccineInfo,setCountryVaccineInfo] = useState({});
+  const [tableVaccineData,setTableVaccineData] = useState([]);
+
   
   
   // Initial API call for worldwide
@@ -55,6 +58,35 @@ function App() {
     getCountriesData();
   },[]);
   
+  useEffect(()=>{
+    const getCountriesVaccineData = async () => {
+      await fetch("https://disease.sh/v3/covid-19/vaccine/coverage?lastdays=30")
+      .then((response)=>response.json())
+      .then(data=>{
+        setCountryVaccineInfo(data);
+        const sortedData = buildVaccineChartData(data);
+        setTableVaccineData(sortedData);
+      });
+    };
+    getCountriesVaccineData();
+  },[]);
+    
+  const buildVaccineChartData = (data) => {
+    const chartData = [];
+    let lastDataPoint;
+    for(let date in data){
+      if (lastDataPoint) {
+        const newDataPoint = {
+          x: date,
+          y: data[date] - lastDataPoint //gives difference in cases between dates
+        }
+        chartData.push(newDataPoint);
+      }
+      lastDataPoint = data[date];
+    }
+    return chartData;
+  }
+  
   const onCountryChange = async (event) => {
     const countryCode=event.target.value;
     setCountry(countryCode);
@@ -77,7 +109,13 @@ function App() {
     
   }
   
+  //API RESULTS DEBUG AREA
+  
   console.log("COUNTRY INFO >>>",countryInfo);
+  console.log("COUNTRY VACCINE INFO >>>", countryVaccineInfo);
+  console.log("COUNTRY VACCINE INFO (SORTED)>>>", tableVaccineData);
+  
+  //
   
   return (
     <div className="app">
