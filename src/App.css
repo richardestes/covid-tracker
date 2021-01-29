@@ -28,6 +28,10 @@ body {
   margin-bottom: 20px;
 }
 
+.app_header_subtitle{
+  font-size: 20px;
+}
+
 .app_left {
   flex: 0.9;
 }

@@ -131,6 +131,7 @@ function App() {
       <div className="app_left">
         <div className="app_header">
           <h1>COVID-19 PROGRESS TRACKER</h1>
+          <h2 class="app_header_subtitle">(Data updates every 24h)</h2>
           <FormControl className="app_dropdown">
             <Select
             onChange={onCountryChange}
