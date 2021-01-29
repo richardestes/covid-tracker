@@ -50,51 +50,99 @@ const options = {
 const buildChartData = (data,casesType) => {
   const chartData = [];
   let lastDataPoint;
-  for(let date in data.cases){
-    if (lastDataPoint) {
-      const newDataPoint = {
-        x: date,
-        y: data[casesType][date] - lastDataPoint //gives difference in cases between dates
+  // Cases
+  
+  if (casesType !== "vaccines"){
+    for(let date in data.cases){
+      if (lastDataPoint) {
+        const newDataPoint = {
+          x: date,
+          y: data[casesType][date] - lastDataPoint //gives difference in cases between dates
+        }
+        chartData.push(newDataPoint);
       }
-      chartData.push(newDataPoint);
+      lastDataPoint = data[casesType][date];
     }
-    lastDataPoint = data[casesType][date];
+    return chartData;
   }
-  return chartData;
+  else {
+    for(let date in data){
+      if (lastDataPoint) {
+        const newDataPoint = {
+          x: date,
+          y: data[date] - lastDataPoint //gives difference in cases between dates
+        }
+        chartData.push(newDataPoint);
+      }
+      lastDataPoint = data[date];
+    }
+    return chartData;
+  }
 }
+
+// const buildVaccineChartData = (data) => {
+//   const chartData = [];
+//   let lastDataPoint;
+//   for(let date in data){
+//     if (lastDataPoint) {
+//       const newDataPoint = {
+//         x: date,
+//         y: data[date] - lastDataPoint //gives difference in cases between dates
+//       }
+//       chartData.push(newDataPoint);
+//     }
+//     lastDataPoint = data[date];
+//   }
+//   return chartData;
+// }
 
 function LineGraph({casesType,...props}) {
   const [data,setData] = useState({});
-  
-  //https://disease.sh/v3/covid-19/historical/all?lastdays=120
-    
+  // const [vaccineData,setVaccineData] = useState({});
+      
   useEffect(()=>{
     const fetchData = async () => {
       await fetch("https://disease.sh/v3/covid-19/historical/all?lastdays=40")
       .then(response=>response.json())
       .then((data) => {
         let chartData = buildChartData(data,casesType);
-        console.log(chartData);
         setData(chartData);
       });
     }
     fetchData();
   },[casesType])
   
+  
+  // useEffect(()=>{
+  //   const getCountriesVaccineData = async () => {
+  //     await fetch("https://disease.sh/v3/covid-19/vaccine/coverage?lastdays=30")
+  //     .then((response)=>response.json())
+  //     .then(data=>{
+  //       let vaccineChartData = buildVaccineChartData(data);
+  //       setVaccineData(vaccineChartData);
+  //     });
+  //   };
+  //   getCountriesVaccineData();
+  // },[]);
+  
+  console.log("CASES DATA >>> ",data);
+  // console.log("VACCINE DATA >>> ",vaccineData);
+  
   return (
     <div className={props.className}>
     {data?.length > 0 && (
-        <Line data={{
-          datasets: [
-            {
-              backgroundColor: "rgba(204,16,52,0.5)",
-              borderColor: "#CC1034",
-              data:data
-            }
-          ]
-          }}
-          options={options}/>
-      )}
+      <Line data={{
+        datasets: [
+          {
+            backgroundColor: "rgba(204,16,52,0.5)",
+            borderColor: "#CC1034",
+            data:data
+          }
+        ]
+        }}
+        options={options}
+      />
+    )}
     </div>
   )
 }

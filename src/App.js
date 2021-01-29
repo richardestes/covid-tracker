@@ -25,10 +25,8 @@ function App() {
   const [mapZoom,setMapZoom] = useState(3);
   const [mapCountries,setMapCountries] = useState([]);
   const [casesType,setCasesType] = useState("cases");
-  const [countryVaccineInfo,setCountryVaccineInfo] = useState({});
-  const [tableVaccineData,setTableVaccineData] = useState([]);
-
-  
+  const [countryInfoYesterday,setCountryInfoYesterday] = useState({});
+  const [dataDifference, setDataDifference] = useState({});
   
   // Initial API call for worldwide
   useEffect(()=>{
@@ -59,33 +57,24 @@ function App() {
   },[]);
   
   useEffect(()=>{
-    const getCountriesVaccineData = async () => {
-      await fetch("https://disease.sh/v3/covid-19/vaccine/coverage?lastdays=30")
-      .then((response)=>response.json())
-      .then(data=>{
-        setCountryVaccineInfo(data);
-        const sortedData = buildVaccineChartData(data);
-        setTableVaccineData(sortedData);
+    const comparisonUrl = 'https://disease.sh/v3/covid-19/all?yesterday=true'; // Worldwide data
+    const getCountriesDataYesterday = async () => {
+    await fetch(comparisonUrl)
+    .then(response=>response.json())
+    .then(data=> {
+      setCountryInfoYesterday(data);
+      const difference = 
+      {
+        "cases": countryInfo.todayCases - countryInfoYesterday.todayCases,
+        "recovered": countryInfo.todayRecovered - countryInfoYesterday.todayRecovered,
+        "deaths": countryInfo.todayDeaths - countryInfoYesterday.todayDeaths
+      }
+      console.log(difference);
+      setDataDifference(difference);
       });
     };
-    getCountriesVaccineData();
+    getCountriesDataYesterday();
   },[]);
-    
-  const buildVaccineChartData = (data) => {
-    const chartData = [];
-    let lastDataPoint;
-    for(let date in data){
-      if (lastDataPoint) {
-        const newDataPoint = {
-          x: date,
-          y: data[date] - lastDataPoint //gives difference in cases between dates
-        }
-        chartData.push(newDataPoint);
-      }
-      lastDataPoint = data[date];
-    }
-    return chartData;
-  }
   
   const onCountryChange = async (event) => {
     const countryCode=event.target.value;
@@ -101,9 +90,29 @@ function App() {
     .then(data => {
       setCountry(countryCode);
       setCountryInfo(data);
+    })
+    
+    const comparisonUrl = 
+      countryCode === 'worldwide'
+      ? 'https://disease.sh/v3/covid-19/all?yesterday=true'
+      : `https://disease.sh/v3/covid-19/countries/${countryCode}?yesterday=true`
+    
+    await fetch(comparisonUrl)
+    .then(response=>response.json())
+    .then(data=> {
+      setCountry(countryCode);
+      setCountryInfoYesterday(data);
+      const difference = 
+      {
+        "cases": countryInfo.todayCases - countryInfoYesterday.todayCases,
+        "recovered": countryInfo.todayRecovered - countryInfoYesterday.todayRecovered,
+        "deaths": countryInfo.todayDeaths - countryInfoYesterday.todayDeaths
+      }
+      console.log(difference);
+      setDataDifference(difference);
       countryCode === "worldwide"
-          ? setMapCenter([34.80746, -40.4796])
-          : setMapCenter([data.countryInfo.lat, data.countryInfo.long]);
+        ? setMapCenter([34.80746, -40.4796])
+        : setMapCenter([data.countryInfo.lat, data.countryInfo.long]);
       setMapZoom(4);
     })
     
@@ -112,9 +121,8 @@ function App() {
   //API RESULTS DEBUG AREA
   
   console.log("COUNTRY INFO >>>",countryInfo);
-  console.log("COUNTRY VACCINE INFO >>>", countryVaccineInfo);
-  console.log("COUNTRY VACCINE INFO (SORTED)>>>", tableVaccineData);
-  
+  console.log("COUNTRY INFO YESTERDAY >>> ",countryInfoYesterday);
+  console.log("DATA DIFFERENCE >>>",dataDifference);
   //
   
   return (
@@ -144,7 +152,8 @@ function App() {
             onClick={e=>setCasesType('cases')}
             title="Cases Reported Today"
             cases={prettyPrintStat(countryInfo.todayCases)}
-            total={prettyPrintStat(countryInfo.cases)} 
+            total={prettyPrintStat(countryInfo.cases)}
+            difference={prettyPrintStat(dataDifference.cases)} 
           />
           <InfoBox
             isGreen
@@ -153,7 +162,8 @@ function App() {
             onClick={e=>setCasesType('recovered')}
             title="Recovered Today"
             cases={prettyPrintStat(countryInfo.todayRecovered)}
-            total={prettyPrintStat(countryInfo.recovered)} 
+            total={prettyPrintStat(countryInfo.recovered)}
+            difference={prettyPrintStat(dataDifference.recovered)} 
           />
           <InfoBox
             className="infoBox_deaths"
@@ -163,6 +173,7 @@ function App() {
             title="Deaths Today"
             cases={prettyPrintStat(countryInfo.todayDeaths)}
             total ={prettyPrintStat(countryInfo.deaths)}
+            difference={prettyPrintStat(dataDifference.deaths)} 
           />
         </div>
         

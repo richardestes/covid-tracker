@@ -23,7 +23,8 @@ export const sortData = (data) => {
 };
 
 export const prettyPrintStat = (stat) => 
-  stat ? `+${numeral(stat).format("0.0a")}` : "+0"
+  stat>0 ? `+${numeral(stat).format("0.0a")}` :
+  stat<0 ? `-${numeral(Math.abs(stat)).format("0.0a")}` : "+0"
 
 export const showDataOnMap = (data,casesType) =>
   data.map(country=>(
