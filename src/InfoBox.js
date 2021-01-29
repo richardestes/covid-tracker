@@ -20,7 +20,7 @@ function InfoBox({title,cases,total,active,isRed,isBlue,isGreen,difference, ...p
         </h2>
         <Typography className ="infoBox_total" color="textSecondary">
           {difference} compared to yesterday
-          {difference==0 ? <p className="infoBox_data_warning">(If this is 0, today's data may have not been recorded yet)</p> : ""}
+          {difference===0 ? <p className="infoBox_data_warning">(If this is 0, today's data may have not been recorded yet)</p> : ""}
         </Typography>
         <Typography className ="infoBox_total" color="textSecondary">
           {total} total
