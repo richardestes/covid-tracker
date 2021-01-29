@@ -74,6 +74,7 @@ function App() {
       });
     };
     getCountriesDataYesterday();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
   
   const onCountryChange = async (event) => {
